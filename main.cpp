@@ -28,11 +28,14 @@ public:
     }
 
     void delman() { tag = 1; }//设置删除标记 1:已删 0:未删
-    void addSaleMan(int n, char *na)//增加销售员
+    void addSaleMan(int n, char *na, int se, char *ph)//增加销售员
     {
         tag = 0;
         no = n;
+        sex = se;
         strcpy(name, na);
+        strcpy(phone, ph);
+
         for (int i = 0; i < Maxper; i++)
             salePros[i] = 0;
     }
@@ -71,9 +74,8 @@ public:
 
 //销售员库，储存销售员的全部信息
 class SDatabase {
-private:
-    int top; //销售员记录指针
-    Salesman sale[Maxr];//销售员记录
+//销售员记录指针
+    //销售员记录
 public:
     SDatabase() //构造函数，将reader.txt读到read[]中
     {
@@ -94,12 +96,13 @@ public:
         top = -1;
     }
 
-    int addSalesman(int n, char *na)//添加销售员时先查找是否存在
+    int addSalesman(int n, char *na, int se, char *ph)//添加销售员时先查找是否存在
     {
+
         Salesman *p = query(n);
         if (p == nullptr) {
             top++;
-            sale[top].addSaleMan(n, na);
+            sale[top].addSaleMan(n, na, se, ph);
             return 1;
         }
         return 0;
@@ -130,12 +133,16 @@ public:
                 file.write((char *) &sale[i], sizeof(sale[i]));
         file.close();
     }
+
+    Salesman sale[Maxr];
+    int top;
 };
 
 void SDatabase::salesmanData() {
     char choice;
-    char rname[20];
+    char rname[20],phone[11];
     int salesmanID;
+    int sex;
     Salesman *r;
     while (choice != '0') {
         cout
@@ -148,7 +155,9 @@ void SDatabase::salesmanData() {
                 cin >> salesmanID;
                 cout << "输入销售员姓名:";
                 cin >> rname;
-                addSalesman(salesmanID, rname);
+                cout << "输入销售员性别(0男1女):";
+                cin >> sex;
+                addSalesman(salesmanID, rname, sex,phone);
                 break;
             case '2':
                 cout << "输入销售员编号（小于十位）:";
@@ -371,8 +380,9 @@ void PDatabase::prodata() {
 //main() 函数的实现，程序的主界面的引导
 int main() {
     char choice;
-    int proID, salesmanID, sex,num,price;
+    int proID, salesmanID, sex, num, price, priceTol;
 
+    string date;
 
     char sname[20], phone[11], pname[20], guige[20];
     SDatabase salesmanData;
@@ -403,7 +413,12 @@ int main() {
                 cin >> num;
                 cout << " 产品单价： ";
                 cin >> price;
-
+                cout << " 产品总价： ";
+                cin >> priceTol;
+                cout << " 销售日期： ";
+                cin >> date;
+                salesmanData.addSalesman(salesmanID, sname, sex,phone);
+                salesmanData.sale[salesmanData.top].salePro(proID);
                 break;
             case '2':
                 cout << "还书\n 读者编号（小于十位）:";
