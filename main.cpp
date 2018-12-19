@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>//输入/输出文件流类
 #include <cstring>
+#include <map>
 
 using namespace std;
 const int Maxr = 100;//销售员最大数量
@@ -15,7 +16,8 @@ private:
     char name[10]; //销售员姓名
     int sex;//0男1女
     char phone[11];//联系电话
-    int salePros[Maxper];//所售农产品
+    map<int,int> saleProsMap; //所售农产品
+//    int salePros[Maxper];
 public:
     Salesman() {}
 
@@ -36,18 +38,13 @@ public:
         strcpy(name, na);
         strcpy(phone, ph);
 
-        for (int i = 0; i < Maxper; i++)
-            salePros[i] = 0;
+
     }
 
-    void salePro(int proNo)//卖农产品
+    void salePro(int proNo,int num)//卖农产品
     {
-        for (int i = 0; i < Maxper; i++) {
-            if (salePros[i] == 0) {
-                salePros[i] = proNo;
-                return;
-            }
-        }
+
+        saleProsMap.insert(pair<int, int>(proNo, num));
     }
 
     /*int retbook(int bookid)//还书操作
@@ -64,10 +61,11 @@ public:
     }*/
     void disp()//输出售货员信息
     {
-        cout << setw(5) << no << setw(10) << name << "卖出产品编号（小于十位）：[";
-        for (int i = 0; i < Maxper; i++)
-            if (salePros[i] != 0)
-                cout << salePros[i] << "|";
+        cout << setw(5) << no << setw(10) << name << "卖出产品：[";
+        map<int, int>::iterator iter;
+        for(iter = saleProsMap.begin(); iter != saleProsMap.end(); iter++)
+
+            cout<<iter->first<<' X '<<iter->second<<endl;
         cout << "]" << endl;
     }
 };
@@ -253,9 +251,9 @@ public:
 //农产品库，实现对农产品的管理
 class PDatabase {
 private:
+public:
     int top; //记录指针
     Production production[Maxb]; //农产品记录
-public:
     PDatabase()//构造函数，将txt读到Production[]中
     {
         Production b;
@@ -417,8 +415,9 @@ int main() {
                 cin >> priceTol;
                 cout << " 销售日期： ";
                 cin >> date;
-                salesmanData.addSalesman(salesmanID, sname, sex,phone);
-                salesmanData.sale[salesmanData.top].salePro(proID);
+                salesmanData.addSalesman(salesmanID, sname, sex, phone);
+
+                salesmanData.sale[salesmanData.top].salePro(proID, num);
                 break;
             case '2':
                 cout << "还书\n 读者编号（小于十位）:";
