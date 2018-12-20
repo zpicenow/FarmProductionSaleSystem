@@ -18,7 +18,7 @@ private:
     string name; //销售员姓名
     int sex;//0男1女
     string phone;//联系电话
-    map<int,int> saleProsMap; //所售农产品
+    map<int, int> saleProsMap; //所售农产品
 //    int salePros[Maxper];
 public:
     Salesman() {}
@@ -43,31 +43,20 @@ public:
 
     }
 
-    void salePro(int proNo,int num)//卖农产品
+    void salePro(int proNo, int num)//卖农产品
     {
 
         saleProsMap.insert(pair<int, int>(proNo, num));
     }
 
-    /*int retbook(int bookid)//还书操作
-    {
-        for(int i=0;i<Maxper;i++)
-        {
-            if(salePros[i]==bookid)
-            {
-                salePros[i]=0;
-                return 1;
-            }
-        }
-        return 0;
-    }*/
     void disp()//输出售货员信息
     {
-        cout << setw(5) << no << setw(10) << name << "卖出产品：[";
+        cout << setw(10) << "销售员编号" << setw(15) << "姓名\t" << setw(20) << "卖出：[产品编号x数量]\n";
+        cout << setw(10) << no << setw(15) << name <<setw(20)<< "[";
         map<int, int>::iterator iter;
-        for(iter = saleProsMap.begin(); iter != saleProsMap.end(); iter++)
+        for (iter = saleProsMap.begin(); iter != saleProsMap.end(); iter++)
 
-            cout<<iter->first<<' X '<<iter->second<<endl;
+            cout << iter->first << "x" << iter->second <<" ; ";
         cout << "]" << endl;
     }
 };
@@ -140,7 +129,7 @@ public:
 
 void SDatabase::salesmanData() {
     char choice;
-    string rname,phone;
+    string rname, phone;
     int salesmanID;
     int sex;
     Salesman *r;
@@ -157,7 +146,7 @@ void SDatabase::salesmanData() {
                 cin >> rname;
                 cout << "输入销售员性别(0男1女):";
                 cin >> sex;
-                addSalesman(salesmanID, rname, sex,phone);
+                addSalesman(salesmanID, rname, sex, phone);
                 break;
             case '2':
                 cout << "输入销售员编号（小于十位）:";
@@ -197,6 +186,8 @@ void SDatabase::salesmanData() {
             case '6':
                 clear();
                 break;
+            case '0':
+                break;
             default:
                 cout << "输入错误，请从新输入：";
                 break;
@@ -209,7 +200,7 @@ class Production {
 private:
     int tag;//删除标记 1:已删 0:未删
     int no;//农产品编号
-    string  name;//名称
+    string name;//名称
     int num;
     int price;//产品单价
     int priceTol;
@@ -225,8 +216,10 @@ public:
         priceTol += tol;
     }
 
+    int getPriceTol() { return priceTol; }
+
     void delPro() { tag = 1; }//删除农产品
-    void addPro(int n, string na, int p,int nu)//增加农产品
+    void addPro(int n, string na, int p, int nu)//增加农产品
     {
         tag = 0;
         no = n;
@@ -235,24 +228,6 @@ public:
         num = nu;
         priceTol = p * nu;
     }
-    /*int borrowbook()//借书操作
-    {
-        if (onshelf==1)
-        {
-            onshelf=0;
-            return 1;
-        }
-        return 0;
-    }*/
-    /*void retbook()//还书操作
-    {
-        onshelf=1;
-    }*/
-    /*void disp()//输出图书
-    {
-        cout << setw(6) << no << setw(18) << name << setw(10)
-             <<(onshelf==1? "在架":"已借") <<endl;
-    }*/
 };
 
 //农产品库，实现对农产品的管理
@@ -280,12 +255,12 @@ public:
         top = -1;
     }
 
-    int addPro(int n, string na, int pri,int nu)//添加农产品
+    int addPro(int n, string na, int pri, int nu)//添加农产品
     {
         Production *p = query(n);
         if (nullptr == p) {
             top++;
-            production[top].addPro(n, na, pri,nu);
+            production[top].addPro(n, na, pri, nu);
             return 1;
         } else {
             p->addpriceTol(pri * nu);
@@ -296,19 +271,33 @@ public:
     Production *query(int proID)//查找农产品
     {
         for (int i = 0; i <= top; i++)
-            if (production[i].getno() == proID && production[i].gettag() == 0) {
+            if (production[i].getno() == proID ) {
                 return &production[i];
             }
         return nullptr;
     }
 
-    void prodata();//农产品维护
-    /*void disp()
-    {
-        for (int i=0;i<=top;i++)
-            if (production[i].gettag()==0)
-                production[i].disp();
-    }*/
+    void proSort() {
+        for (int i = 0; i < top ; ++i) {
+            for (int j = 0; j < top  - i; ++j) {
+                if (production[i].getPriceTol() < production[j].getPriceTol()) {
+                    Production temp = production[i];
+                    production[i] = production[j];
+                    production[j] = temp;
+                }
+            }
+        }
+    }
+
+    void disp() {
+        cout << setw(20) << "农产品编号" << setw(20) << "名称" << setw(20)
+             << "总销售额" << endl;
+        for (int i = 0; i <= top; ++i) {
+            cout << setw(20) << production[i].getno() << setw(20) << production[i].getname() << setw(20)
+                 << production[i].getPriceTol() << endl;
+        }
+    }
+
     ~PDatabase()//析构函数，将
     {
         fstream file("production.txt", ios::out);
@@ -318,21 +307,38 @@ public:
         file.close();
     }
 };
+
 //月数据
 class Mouth {
 private:
-    int saleID,proID,mouth,num,price,priceTol;
-    string salename,proname;//名称
+    int saleID, proID, mouth, num, price, priceTol;
 public:
+    int getPriceTol() const {
+        return priceTol;
+    }
+
+private:
+    string salename, proname;//名称
+public:
+    const string &getSalename() const {
+        return salename;
+    }
+
+    const string &getProname() const {
+        return proname;
+    }
 
     int getSaleID() { return saleID; }
+
     int getProID() { return proID; }
+
     int getMouth() { return mouth; }
+
     int getNum() { return num; }
+
     int getPrice() { return price; }
 
-    void addMouthMes(int sid,int pid,int mou,int pri,int nu,string sname,string pname)
-    {
+    void addMouthMes(int sid, int pid, int mou, int pri, int nu, string sname, string pname) {
         saleID = sid;
         proID = pid;
         mouth = mou;
@@ -342,10 +348,11 @@ public:
         proname = pname;
         priceTol = pri * nu;
     }
+
     void disp()//输出
     {
-        cout << setw(10) << saleID << setw(10) << salename << setw(10) << proID << setw(10) << proname
-             << mouth << setw(10) << price << setw(10) << num << setw(10) << priceTol << endl;
+        cout << setw(10) << saleID << setw(15) << salename << setw(10) << proID << setw(15) << proname<<setw(10)
+             << mouth << setw(15) << price << setw(15) << num << setw(15) << priceTol << endl;
     }
 };
 
@@ -362,97 +369,84 @@ public:
         top = -1;
     }
 
-    int addMouthData(int sid,int pid,int mou,int pri,int nu,string sname,string pname)//添加
+    int addMouthData(int sid, int pid, int mou, int pri, int nu, string sname, string pname)//添加
     {
-        Mouth *p = query(sid,pid,mou);
+        Mouth *p = query(sid, pid, mou);
         if (nullptr == p) {
             top++;
-            mouth[top].addMouthMes(sid,pid,mou,pri,nu,sname,pname);
+            mouth[top].addMouthMes(sid, pid, mou, pri, nu, sname, pname);
             return 1;
         }
         return 0;
     }
 
-    Mouth *query(int sid,int pid,int mou)//查找
+    Mouth *query(int sid, int pid, int mou)//查找
     {
-        for (int i = 0; i <= top; i++)
+
+        for (int i = 0; i <= top; i++) {
+
             if (mouth[i].getSaleID() == sid && mouth[i].getProID() == pid && mouth[i].getMouth() == mou) {
+
                 return &mouth[i];
             }
+        }
         return nullptr;
+    }
+
+    Mouth *query(int mou)//查找
+    {
+
+        for (int i = 0; i <= top; i++) {
+
+            if (mouth[i].getMouth() == mou) {
+
+                mouth[i].disp();
+            }
+        }
+        return nullptr;
+    }
+
+    void mouSort() {
+        for (int i = 0; i < top ; ++i) {
+            for (int j = 0; j < top  - i; ++j) {
+                if (mouth[i].getSaleID() < mouth[j].getSaleID()) {
+                    Mouth temp = mouth[i];
+                    mouth[i] = mouth[j];
+                    mouth[j] = temp;
+                }
+            }
+        }
+    }
+
+    void count() {
+        mouSort();
+        int i = 0;
+        while (i <= top) {
+            int sID = mouth[i].getSaleID();
+            int pID = mouth[i].getProID();
+            int tol = mouth[i].getPriceTol();
+            int count = 1;
+            cout <<setw(10)<< sID<<setw(15)<<mouth[i].getSalename() <<setw(10)<<pID;
+            while (mouth[++i].getSaleID() == sID && mouth[i].getProID() == pID) {
+
+                count++;
+                tol += mouth[i].getPriceTol();
+                if (i == top) {
+                    break;
+                }
+            }
+            cout<<setw(15) << tol / count << endl;
+
+        }
     }
 
 };
 
-void PDatabase::prodata() {
-    char choice;
-    char bname[40];
-    int pri;
-    int proID;
-    Production *b;
-    while (choice != '0') {
-        cout << "\n\n\n\t\t\t农产品 维 护 " << endl << endl;
-        cout << "\t\t1 新 增\n \t\t2 更 改\n\t\t3 删 除\n\t\t4 查 找\n\t\t5 显 示\n\t\t6 全 删\n\t\t0 退 出" << endl;
-        cin >> choice;
-        switch (choice) {
-            case '1':
-                cout << "输入产品编号（小于十位）:" << endl;
-                cin >> proID;
-                cout << "输入农产品名:" << endl;
-                cin >> bname;
-                cout << "输入农产品单价:" << endl;
-                cin >> pri;
-                addPro(proID, bname, pri);
-                break;
-            case '2':
-                cout << "输入产品编号（小于十位）:" << endl;
-                cin >> proID;
-                b = query(proID);
-                if (b == nullptr) {
-                    cout << " 该产品不存在 " << endl;
-                    break;
-                }
-                cout << "输入新的名称:" << endl;
-                cin >> bname;
-                b->setname(bname);
-                break;
-            case '3':
-                cout << " 读入产品编号（小于十位）:" << endl;
-                cin >> proID;
-                b = query(proID);
-                if (b == nullptr) {
-                    cout << " 该产品不存在" << endl;
-                    break;
-                }
-                b->delPro();
-                break;
-//            case '4':
-//                cout << " 读入产品编号:"<<endl;
-//                cin >> proID;
-//                b=query(proID);
-//                if (b== nullptr)
-//                {
-//                    cout <<" 该图书不存在"<< endl;
-//                    break;
-//                }
-//                b->disp();
-//                break;
-//            case '5':
-//                disp();
-//                break;
-            case '6':
-                clear();
-                break;
-            default:
-                cout << "输入错误，请从新输入:";
-        }
-    }
-}
 
 //main() 函数的实现，程序的主界面的引导
 int main() {
     char choice;
-    int proID, salesmanID, sex, num, price, priceTol,date;
+    int proID, salesmanID, sex, num, price, priceTol, date;
 
     string phone, pname;
 
@@ -463,9 +457,12 @@ int main() {
     Production *p;
     MouthDataBase mouthDataBase;
     Mouth *m;
-    while (choice != '0') {
-        cout << endl << endl << "\t\t\t 农产品销售 管 理 系 统\n\n\n";
-        cout << "\t\t\t1 录入销售信息\n\n\t\t\t2 销售员维护 \n\n\t\t\t3 销售信息管理\n\n\t\t\t4 读 者 维 护\n\n\t\t\t0 离 开" << endl;
+    while (choice != 'q') {
+        cout <<"=================================================================="<< endl << "\t\t 农产品销售 管 理 系 统\n\n\n";
+        cout
+                << "\t\t\t1 录入销售信息\n\n\t\t\t2 销售员维护 \n\n\t\t\t3 销售员销售统计\n\n\t\t\t4 农产品销售统计\n\n\t\t\t5 月度报表\n\n\t\t\t6 销售人员月销售额\n\n==================================================================\n"
+                << endl;
+        
         cin >> choice;
         switch (choice) {
             case '1':
@@ -506,8 +503,12 @@ int main() {
 
                 cout << " 销售日期(格式20190101)： ";
                 cin >> date;
+                while (date / 100 % 100 <= 0 || date / 100 % 100 >= 12) {
+                    cout << "日期无效请重新输入" << endl;
+                    cin >> date;
+                }
                 salesmanData.addSalesman(salesmanID, sname, sex, phone);
-                proData.addPro(proID, pname, price);
+                proData.addPro(proID, pname, price, num);
                 salesmanData.sale[salesmanData.top].salePro(proID, num);
                 mouthDataBase.addMouthData(salesmanID, proID, date / 100, price, num, sname, pname);
                 break;
@@ -521,7 +522,20 @@ int main() {
                 salesmanData.query(sID)->disp();
                 break;
             case '4':
-                salesmanData.salesmanData();
+                proData.proSort();
+                proData.disp();
+                break;
+            case '5':
+                int moutemp;
+                cout << "请输入月份(格式：201901)" << endl;
+                cin >> moutemp;
+                cout << setw(10) << "业务员编号" << setw(15) << "姓名" << setw(10) << "产品编号" << setw(15) << "产品名称" << setw(10)
+                     << "月份" << setw(15) << "单价" << setw(15) << "数量" << setw(15) << "总价" << endl;
+                mouthDataBase.query(moutemp);
+                break;
+            case '6':
+                cout <<setw(10)<< "销售员代号" <<setw(15)<< "姓名\t" <<setw(10)<< "商品编号\t" <<setw(15)<< "平均月销售额" << endl;
+                mouthDataBase.count();
                 break;
             default:
                 cout << "输入错误，请从新输入：";
