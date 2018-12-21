@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>//输入/输出文件流类
 #include <cstring>
+#include <string>
 #include <map>
 
 using namespace std;
@@ -52,7 +53,7 @@ public:
     void disp()//输出售货员信息
     {
         cout << setw(10) << "销售员编号" << setw(15) << "姓名\t" << setw(20) << "卖出：[产品编号x数量]\n";
-        cout << setw(10) << no << setw(15) << name <<setw(20)<< "[";
+        cout << setw(10) << no << setw(15) << name.c_str() <<setw(20)<< "[";
         map<int, int>::iterator iter;
         for (iter = saleProsMap.begin(); iter != saleProsMap.end(); iter++)
 
@@ -89,7 +90,7 @@ public:
     {
 
         Salesman *p = query(n);
-        if (p == nullptr) {
+        if (p == NULL) {
             top++;
             sale[top].addSaleMan(n, na, se, ph);
             return 1;
@@ -128,7 +129,7 @@ public:
 };
 
 void SDatabase::salesmanData() {
-    char choice;
+    char choice = 'a',rtemp[20];
     string rname, phone;
     int salesmanID;
     int sex;
@@ -143,7 +144,8 @@ void SDatabase::salesmanData() {
                 cout << "输入销售员编号（小于十位）:";
                 cin >> salesmanID;
                 cout << "输入销售员姓名:";
-                cin >> rname;
+                cin >> rtemp;
+                rname = rtemp;
                 cout << "输入销售员性别(0男1女):";
                 cin >> sex;
                 addSalesman(salesmanID, rname, sex, phone);
@@ -152,19 +154,21 @@ void SDatabase::salesmanData() {
                 cout << "输入销售员编号（小于十位）:";
                 cin >> salesmanID;
                 r = query(salesmanID);
-                if (r == nullptr) {
+                if (r == NULL) {
                     cout << " 该销售员不存在 " << endl;
                     break;
                 }
                 cout << "输入新的姓名:";
-                cin >> rname;
+                char rtemp[20];
+                cin >> rtemp;
+                rname = rtemp;
                 r->setname(rname);
                 break;
             case '3':
                 cout << " 输入销售员编号（小于十位）:";
                 cin >> salesmanID;
                 r = query(salesmanID);
-                if (r == nullptr) {
+                if (r == NULL) {
                     cout << " 该销售员不存在" << endl;
                     break;
                 }
@@ -174,7 +178,7 @@ void SDatabase::salesmanData() {
                 cout << "读入销售员编号（小于十位）:";
                 cin >> salesmanID;
                 r = query(salesmanID);
-                if (r == nullptr) {
+                if (r == NULL) {
                     cout << "该销售员不存在" << endl;
                     break;
                 }
@@ -258,7 +262,7 @@ public:
     int addPro(int n, string na, int pri, int nu)//添加农产品
     {
         Production *p = query(n);
-        if (nullptr == p) {
+        if (NULL == p) {
             top++;
             production[top].addPro(n, na, pri, nu);
             return 1;
@@ -274,7 +278,7 @@ public:
             if (production[i].getno() == proID ) {
                 return &production[i];
             }
-        return nullptr;
+        return NULL;
     }
 
     void proSort() {
@@ -351,7 +355,7 @@ public:
 
     void disp()//输出
     {
-        cout << setw(10) << saleID << setw(15) << salename << setw(10) << proID << setw(15) << proname<<setw(10)
+        cout << setw(10) << saleID << setw(15) << salename.c_str() << setw(10) << proID << setw(15) << proname.c_str()<<setw(10)
              << mouth << setw(15) << price << setw(15) << num << setw(15) << priceTol << endl;
     }
 };
@@ -372,7 +376,7 @@ public:
     int addMouthData(int sid, int pid, int mou, int pri, int nu, string sname, string pname)//添加
     {
         Mouth *p = query(sid, pid, mou);
-        if (nullptr == p) {
+        if (NULL == p) {
             top++;
             mouth[top].addMouthMes(sid, pid, mou, pri, nu, sname, pname);
             return 1;
@@ -390,7 +394,7 @@ public:
                 return &mouth[i];
             }
         }
-        return nullptr;
+        return NULL;
     }
 
     Mouth *query(int mou)//查找
@@ -403,7 +407,7 @@ public:
                 mouth[i].disp();
             }
         }
-        return nullptr;
+        return NULL;
     }
 
     void mouSort() {
@@ -445,7 +449,7 @@ public:
 
 //main() 函数的实现，程序的主界面的引导
 int main() {
-    char choice;
+    char choice = 'a';
     int proID, salesmanID, sex, num, price, priceTol, date;
 
     string phone, pname;
@@ -477,21 +481,27 @@ int main() {
                     cin >> sex;
                 }
                 cout << " 请输入销售员联系电话:";
-                cin >> phone;
+                char phtemp[20];
+                cin >> phtemp;
+                phone = phtemp;
                 while (phone.length() > 11) {
                     cout << "电话无效，请重新输入" << endl;
 
-                    cin >> phone;
+                    cin >> phtemp;
+                    phone = phtemp;
 
                 }
                 cout << " 产品编号（小于十位）： ";
                 cin >> proID;
                 cout << " 产品名称： ";
-                cin >> pname;
+                char ntemp[20];
+                cin >> ntemp;
+                pname = ntemp;
                 while (pname == " ") {
                     cout << "名称无效重新输入" << endl;
 
-                    cin >> pname;
+                    cin >> ntemp;
+                    pname = ntemp;
 
                 }
                 cout << " 产品规格（小于20位）： ";
